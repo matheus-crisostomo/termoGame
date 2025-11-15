@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 public class TermoView {
     private final BorderPane root = new BorderPane();
     private final GridPane grid = new GridPane();
+    private final Label title = new Label("TERMO DOS CRIA");
     private final Label message = new Label();
     private final Button restartButton = new Button("Reiniciar");
     private final Button sendButton = new Button("Enviar");
@@ -37,6 +38,12 @@ public class TermoView {
         grid.setVgap(10);
         grid.setAlignment(Pos.CENTER);
 
+        title.setFont(Font.font("Arial Black", 24));
+        title.getStyleClass().add("title");
+        root.setTop(title);
+        BorderPane.setAlignment(title, Pos.CENTER);
+
+
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 StackPane box = new StackPane();
@@ -55,6 +62,9 @@ public class TermoView {
         VBox bottomBox = new VBox(10);
         bottomBox.setAlignment(Pos.CENTER);
 
+        title.setFont(Font.font("Arial Black", 24));
+        title.getStyleClass().add("title");
+
         message.getStyleClass().add("message");
         message.setFont(Font.font("Arial", 16));
 
@@ -63,6 +73,7 @@ public class TermoView {
 
         restartButton.setFont(Font.font("Arial Black", 18));
         restartButton.getStyleClass().add("restart-button");
+
 
         bottomBox.getChildren().addAll(message,sendButton, restartButton);
 
