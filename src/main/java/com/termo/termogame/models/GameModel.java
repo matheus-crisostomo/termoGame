@@ -1,4 +1,6 @@
-package com.termo.termogame;
+package com.termo.termogame.models;
+
+import com.termo.termogame.enums.LetterState;
 
 import java.util.*;
 

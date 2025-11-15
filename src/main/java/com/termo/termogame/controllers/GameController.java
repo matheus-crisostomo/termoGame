@@ -1,5 +1,8 @@
-package com.termo.termogame;
+package com.termo.termogame.controllers;
 
+import com.termo.termogame.models.GameModel;
+import com.termo.termogame.enums.LetterState;
+import com.termo.termogame.views.TermoView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 

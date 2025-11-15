@@ -1,5 +1,6 @@
-package com.termo.termogame;
+package com.termo.termogame.views;
 
+import com.termo.termogame.enums.LetterState;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
