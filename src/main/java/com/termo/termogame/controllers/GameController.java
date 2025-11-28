@@ -10,6 +10,9 @@ public class GameController {
     private final GameModel model;
     private final TermoView view;
 
+    private boolean jogoEncerrado = false;
+
+
     private int currentRow = 0;
     private int currentCol = 0;
     private final char[][] buffer;
@@ -67,7 +70,7 @@ public class GameController {
         KeyCode code = ev.getCode();
 
         if (code == KeyCode.BACK_SPACE) {
-            if (currentCol > 0) {
+            if (currentCol >= 0) {
                 buffer[currentRow][currentCol] = '\0';
                 atualizarViewDaLinha(currentRow);
                 view.celulaFocada(currentRow, currentCol);
@@ -76,6 +79,7 @@ public class GameController {
             return;
         }
         if (code == KeyCode.ENTER) {
+            sendAttempt();
             ev.consume();
             return;
         }
@@ -107,6 +111,7 @@ public class GameController {
     private void restartGame() {
         model.novaPalavra();
         model.resetarTentativas();
+        jogoEncerrado = false;
 
         for (int r = 0; r < buffer.length; r++) {
             for (int c = 0; c < buffer[r].length; c++) {
@@ -131,6 +136,7 @@ public class GameController {
     }
 
     private void sendAttempt() {
+        if (jogoEncerrado) return;
         int tamanho = model.getTamanhoPalavra();
         int count = 0;
         for (char ch : buffer[currentRow]) {
@@ -152,10 +158,12 @@ public class GameController {
             if (model.isCorrect(guess)) {
                 view.setMensagem("Parabéns! Você acertou em " + model.getTentativa() + " tentativa(s)!");
                 view.getSendButton().setDisable(true);
+                jogoEncerrado = true;
                 lockInput();
                 return;
             } else if (!model.hasTentativasRestantes()) {
                 view.setMensagem("Fim de jogo. A palavra era: "+model.getPalavraAlvo());
+                jogoEncerrado = true;
                 lockInput();
                 return;
             } else {
