@@ -63,8 +63,6 @@ public class TermoView {
         bottomBox.setAlignment(Pos.CENTER);
         insideBox.setAlignment(Pos.CENTER);
 
-        titulo.setFont(Font.font("Arial Black", 24));
-        titulo.getStyleClass().add("titulo");
 
         mensagem.getStyleClass().add("mensagem");
         mensagem.setFont(Font.font("Arial", 16));
@@ -99,7 +97,9 @@ public class TermoView {
         for (int c = 0; c < colunas; c++) setCellLetter(row, c, "");
         for (int c = 0; c < colunas; c++) {
             celulas[row][c].getStyleClass().removeAll("gray", "yellow", "green");
-            celulas[row][c].getStyleClass().add("cell");
+            if (!celulas[row][c].getStyleClass().contains("cell")) {
+                celulas[row][c].getStyleClass().add("cell");
+            }
         }
     }
 
