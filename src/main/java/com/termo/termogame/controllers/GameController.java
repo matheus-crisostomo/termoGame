@@ -126,7 +126,8 @@ public class GameController {
         view.celulaFocada(0, 0);
         view.getSendButton().setDisable(false);
 
-        System.out.println("Nova palavra alvo (DEBUG): " + model.getPalavraAlvo());
+        System.out.println("Nova palavra alvo (DEBUG): "
+                + model.getPalavraAlvo());
     }
 
     private void sendAttempt() {
@@ -154,7 +155,7 @@ public class GameController {
                 lockInput();
                 return;
             } else if (!model.hasTentativasRestantes()) {
-                view.setMensagem("Fim de jogo. A palavra era: (veja console de debug).");
+                view.setMensagem("Fim de jogo. A palavra era: "+model.getPalavraAlvo());
                 lockInput();
                 return;
             } else {
