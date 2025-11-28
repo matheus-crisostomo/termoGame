@@ -1,27 +1,27 @@
 package com.termo.termogame.models;
 
-import com.termo.termogame.enums.LetterState;
+import com.termo.termogame.enums.EstadoDaLetra;
 
 import java.util.*;
 
 public class GameModel {
-    private List<String> wordList = new ArrayList<>();
-    private String target;
-    private final int wordLength = 5;
-    private final int maxAttempts = 6;
-    private int attempt = 0;
+    private List<String> listaPalavras = new ArrayList<>();
+    private String palavraAlvo;
+    private final int tamanhoPalavra = 5;
+    private final int maxTentativas = 6;
+    private int tentativa = 0;
 
     public GameModel() {
-        loadDictionary();
-        pickNewTarget();
+        carregarDicionario();
+        pegarNovaPalavra();
     }
 
-    private void loadDictionary() {
+    private void carregarDicionario() {
         try (Scanner sc = new Scanner(Objects.requireNonNull(
                 getClass().getResourceAsStream("/com/termo/termogame/dicionario.txt")))) {
 
             while (sc.hasNextLine()) {
-                wordList.add(sc.nextLine().trim().toUpperCase());
+                listaPalavras.add(sc.nextLine().trim().toUpperCase());
             }
 
         } catch (Exception e) {
@@ -29,83 +29,83 @@ public class GameModel {
         }
     }
 
-    private void pickNewTarget() {
+    private void pegarNovaPalavra() {
         List<String> filtered = new ArrayList<>();
-        for (String w : wordList) {
-            if (w.length() == wordLength) filtered.add(w);
+        for (String w : listaPalavras) {
+            if (w.length() == tamanhoPalavra) filtered.add(w);
         }
 
         if (filtered.isEmpty())
             throw new IllegalStateException("Nenhuma palavra com o tamanho definido.");
 
-        target = filtered.get(new Random().nextInt(filtered.size()));
-        System.out.println("Nova palavra alvo (DEBUG): " + target);
-        attempt = 0;
+        palavraAlvo = filtered.get(new Random().nextInt(filtered.size()));
+        System.out.println("Nova palavra alvo (DEBUG): " + palavraAlvo);
+        tentativa = 0;
     }
 
-    public void newRandomWord() {
-        pickNewTarget();
+    public void novaPalavra() {
+        pegarNovaPalavra();
     }
 
-    public void resetAttempts() {
-        attempt = 0;
+    public void resetarTentativas() {
+        tentativa = 0;
     }
 
-    public int getWordLength() {
-        return wordLength;
+    public int getTamanhoPalavra() {
+        return tamanhoPalavra;
     }
 
-    public int getMaxAttempts() {
-        return maxAttempts;
+    public int getMaxTentativas() {
+        return maxTentativas;
     }
 
-    public int getAttempt() {
-        return attempt;
+    public int getTentativa() {
+        return tentativa;
     }
 
-    public boolean hasAttemptsLeft() {
-        return attempt < maxAttempts;
+    public boolean hasTentativasRestantes() {
+        return tentativa < maxTentativas;
     }
 
-    public LetterState[] checkGuess(String guess) {
+    public EstadoDaLetra[] verificar(String guess) {
         guess = guess.toUpperCase();
-        LetterState[] result = new LetterState[wordLength];
-        char[] targetArr = target.toCharArray();
+        EstadoDaLetra[] result = new EstadoDaLetra[tamanhoPalavra];
+        char[] palavraAlvoArr = palavraAlvo.toCharArray();
         char[] guessArr = guess.toCharArray();
 
-        boolean[] markedTarget = new boolean[wordLength];
+        boolean[] letrasUsadas = new boolean[tamanhoPalavra];
 
-        for (int i = 0; i < wordLength; i++) {
-            if (guessArr[i] == targetArr[i]) {
-                result[i] = LetterState.GREEN;
-                markedTarget[i] = true;
+        for (int i = 0; i < tamanhoPalavra; i++) {
+            if (guessArr[i] == palavraAlvoArr[i]) {
+                result[i] = EstadoDaLetra.GREEN;
+                letrasUsadas[i] = true;
             }
         }
 
-        for (int i = 0; i < wordLength; i++) {
-            if (result[i] == LetterState.GREEN) continue;
+        for (int i = 0; i < tamanhoPalavra; i++) {
+            if (result[i] == EstadoDaLetra.GREEN) continue;
 
             boolean found = false;
-            for (int j = 0; j < wordLength; j++) {
-                if (!markedTarget[j] && guessArr[i] == targetArr[j]) {
+            for (int j = 0; j < tamanhoPalavra; j++) {
+                if (!letrasUsadas[j] && guessArr[i] == palavraAlvoArr[j]) {
                     found = true;
-                    markedTarget[j] = true;
+                    letrasUsadas[j] = true;
                     break;
                 }
             }
 
-            result[i] = found ? LetterState.YELLOW : LetterState.GRAY;
+            result[i] = found ? EstadoDaLetra.YELLOW : EstadoDaLetra.GRAY;
         }
 
-        attempt++;
+        tentativa++;
         return result;
     }
 
     public boolean isCorrect(String guess) {
-        return guess.equalsIgnoreCase(target);
+        return guess.equalsIgnoreCase(palavraAlvo);
     }
-    public String getTargetWord() {
-        return target;
+    public String getPalavraAlvo() {
+        return palavraAlvo;
     }
 
 }

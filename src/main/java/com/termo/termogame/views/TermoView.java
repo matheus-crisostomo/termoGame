@@ -1,72 +1,73 @@
 package com.termo.termogame.views;
 
-import com.termo.termogame.enums.LetterState;
+import com.termo.termogame.enums.EstadoDaLetra;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import javafx.scene.layout.VBox;
 
 public class TermoView {
-    private final BorderPane root = new BorderPane();
+    private final BorderPane layout = new BorderPane();
     private final GridPane grid = new GridPane();
-    private final Label title = new Label("TERMO DOS CRIA");
-    private final Label message = new Label();
+    private final Label titulo = new Label("ADVINHAE");
+    private final Label mensagem = new Label();
     private final Button restartButton = new Button("Reiniciar");
     private final Button sendButton = new Button("Enviar");
 
-    private final int cols;
-    private final int rows;
-    private final StackPane[][] cells;
-    private final Label[][] letters;
+    private final int colunas;
+    private final int linhas;
+    private final StackPane[][] celulas;
+    private final Label[][] letras;
 
     public TermoView(int cols, int rows) {
-        this.cols = cols;
-        this.rows = rows;
-        this.cells = new StackPane[rows][cols];
-        this.letters = new Label[rows][cols];
-        createLayout();
+        this.colunas = cols;
+        this.linhas = rows;
+        this.celulas = new StackPane[rows][cols];
+        this.letras = new Label[rows][cols];
+        criarLayout();
     }
 
-    private void createLayout() {
-        root.setPrefSize(600, 800);
+    private void criarLayout() {
+        layout.setPrefSize(600, 800);
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setAlignment(Pos.CENTER);
 
-        title.setFont(Font.font("Arial Black", 24));
-        title.getStyleClass().add("title");
-        root.setTop(title);
-        BorderPane.setAlignment(title, Pos.CENTER);
+        titulo.setFont(Font.font("Arial Black", 24));
+        titulo.getStyleClass().add("title");
+        layout.setTop(titulo);
+        BorderPane.setAlignment(titulo, Pos.CENTER);
 
 
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
+        for (int r = 0; r < linhas; r++) {
+            for (int c = 0; c < colunas; c++) {
                 StackPane box = new StackPane();
                 box.getStyleClass().add("cell");
+
                 Label lbl = new Label("");
                 lbl.getStyleClass().add("cell-letter");
                 lbl.setFont(Font.font("Arial Black", 36));
+
                 box.getChildren().add(lbl);
 
                 grid.add(box, c, r);
-                cells[r][c] = box;
-                letters[r][c] = lbl;
+                celulas[r][c] = box;
+                letras[r][c] = lbl;
             }
         }
 
-        VBox bottomBox = new VBox(10);
+        VBox bottomBox = new VBox(20);
+        HBox insideBox = new HBox(10);
         bottomBox.setAlignment(Pos.CENTER);
+        insideBox.setAlignment(Pos.CENTER);
 
-        title.setFont(Font.font("Arial Black", 24));
-        title.getStyleClass().add("title");
+        titulo.setFont(Font.font("Arial Black", 24));
+        titulo.getStyleClass().add("titulo");
 
-        message.getStyleClass().add("message");
-        message.setFont(Font.font("Arial", 16));
+        mensagem.getStyleClass().add("mensagem");
+        mensagem.setFont(Font.font("Arial", 16));
 
         sendButton.setFont(Font.font("Arial Black", 18));
         sendButton.getStyleClass().add("send-button");
@@ -74,16 +75,16 @@ public class TermoView {
         restartButton.setFont(Font.font("Arial Black", 18));
         restartButton.getStyleClass().add("restart-button");
 
+        insideBox.getChildren().addAll(restartButton, sendButton);
+        bottomBox.getChildren().addAll(mensagem,insideBox);
 
-        bottomBox.getChildren().addAll(message,sendButton, restartButton);
-
-        root.setCenter(grid);
-        root.setBottom(bottomBox);
-        root.getStyleClass().add("root");
+        layout.setCenter(grid);
+        layout.setBottom(bottomBox);
+        layout.getStyleClass().add("layout");
     }
 
-    public Node getRoot() {
-        return root;
+    public Node getLayout() {
+        return layout;
     }
 
     public Button getRestartButton() {
@@ -91,19 +92,19 @@ public class TermoView {
     }
 
     public void setCellLetter(int row, int col, String ch) {
-        letters[row][col].setText(ch == null ? "" : ch);
+        letras[row][col].setText(ch == null ? "" : ch);
     }
 
-    public void clearRow(int row) {
-        for (int c = 0; c < cols; c++) setCellLetter(row, c, "");
-        for (int c = 0; c < cols; c++) {
-            cells[row][c].getStyleClass().removeAll("gray", "yellow", "green");
-            cells[row][c].getStyleClass().add("cell");
+    public void limparLinhas(int row) {
+        for (int c = 0; c < colunas; c++) setCellLetter(row, c, "");
+        for (int c = 0; c < colunas; c++) {
+            celulas[row][c].getStyleClass().removeAll("gray", "yellow", "green");
+            celulas[row][c].getStyleClass().add("cell");
         }
     }
 
-    public void setCellState(int row, int col, LetterState state) {
-        StackPane cell = cells[row][col];
+    public void setEstadoDasCelulas(int row, int col, EstadoDaLetra state) {
+        StackPane cell = celulas[row][col];
         cell.getStyleClass().removeAll("gray", "yellow", "green");
         switch (state) {
             case GRAY -> cell.getStyleClass().add("gray");
@@ -112,21 +113,21 @@ public class TermoView {
         }
     }
 
-    public void setMessage(String txt) {
-        message.setText(txt);
+    public void setMensagem(String txt) {
+        mensagem.setText(txt);
     }
 
-    public void focusCell(int row, int col) {
-        for (int r = 0; r < rows; r++)
-            for (int c = 0; c < cols; c++)
-                cells[r][c].getStyleClass().remove("focused");
+    public void celulaFocada(int row, int col) {
+        for (int r = 0; r < linhas; r++)
+            for (int c = 0; c < colunas; c++)
+                celulas[r][c].getStyleClass().remove("focused");
 
-        if (row < rows && col < cols && row >= 0 && col >= 0)
-            cells[row][col].getStyleClass().add("focused");
+        if (row < linhas && col < colunas && row >= 0 && col >= 0)
+            celulas[row][col].getStyleClass().add("focused");
     }
 
-    public int getCols() { return cols; }
-    public int getRows() { return rows; }
+    public int getColunas() { return colunas; }
+    public int getLinhas() { return linhas; }
     public Button getSendButton() {
         return sendButton;
     }

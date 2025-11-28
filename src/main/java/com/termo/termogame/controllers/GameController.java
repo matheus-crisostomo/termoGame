@@ -1,7 +1,7 @@
 package com.termo.termogame.controllers;
 
 import com.termo.termogame.models.GameModel;
-import com.termo.termogame.enums.LetterState;
+import com.termo.termogame.enums.EstadoDaLetra;
 import com.termo.termogame.views.TermoView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -18,20 +18,20 @@ public class GameController {
         this.model = model;
         this.view = view;
 
-        buffer = new StringBuilder[view.getRows()];
+        buffer = new StringBuilder[view.getLinhas()];
         for (int i = 0; i < buffer.length; i++) buffer[i] = new StringBuilder();
 
 
-        view.getRoot().addEventFilter(KeyEvent.KEY_PRESSED, this::onKeyPressed);
-        view.getRoot().addEventFilter(KeyEvent.KEY_TYPED, this::onKeyTyped);
+        view.getLayout().addEventFilter(KeyEvent.KEY_PRESSED, this::onKeyPressed);
+        view.getLayout().addEventFilter(KeyEvent.KEY_TYPED, this::onKeyTyped);
 
         view.getRestartButton().setOnAction(e -> restartGame());
         view.getSendButton().setOnAction(e -> sendAttempt());
     }
 
     public void start() {
-        view.setMessage("Digite a palavra de " + model.getWordLength() + " letras. Pressione ENTER para enviar.");
-        view.focusCell(currentRow, currentCol);
+        view.setMensagem("Digite a palavra de " + model.getTamanhoPalavra() + " letras. Clique no botão ENVIAR apos digitar.");
+        view.celulaFocada(currentRow, currentCol);
     }
 
     private void onKeyTyped(KeyEvent ev) {
@@ -40,7 +40,7 @@ public class GameController {
         if (ch.charAt(0) < 32) return;
 
         if (ch.matches("[a-zA-ZÀ-ÿ]")) {
-            if (buffer[currentRow].length() >= model.getWordLength()) {
+            if (buffer[currentRow].length() >= model.getTamanhoPalavra()) {
                 ev.consume();
                 return;
             }
@@ -50,7 +50,7 @@ public class GameController {
             view.setCellLetter(currentRow, currentCol, String.valueOf(up));
 
             currentCol++;
-            view.focusCell(currentRow, Math.min(currentCol, model.getWordLength() - 1));
+            view.celulaFocada(currentRow, Math.min(currentCol, model.getTamanhoPalavra() - 1));
         }
     }
 
@@ -64,7 +64,7 @@ public class GameController {
                 buffer[currentRow].deleteCharAt(last);
                 view.setCellLetter(currentRow, last, "");
                 currentCol = last;
-                view.focusCell(currentRow, currentCol);
+                view.celulaFocada(currentRow, currentCol);
             }
             ev.consume();
             return;
@@ -75,76 +75,76 @@ public class GameController {
         }
         if (code == KeyCode.LEFT) {
             if (currentCol > 0) currentCol--;
-            view.focusCell(currentRow, currentCol);
+            view.celulaFocada(currentRow, currentCol);
             ev.consume();
             return;
         }
 
         if (code == KeyCode.RIGHT) {
-            if (currentCol < model.getWordLength() - 1) currentCol++;
-            view.focusCell(currentRow, currentCol);
+            if (currentCol < model.getTamanhoPalavra() - 1) currentCol++;
+            view.celulaFocada(currentRow, currentCol);
             ev.consume();
             return;
         }
     }
 
     private void lockInput() {
-        view.getRoot().removeEventFilter(KeyEvent.KEY_PRESSED, this::onKeyPressed);
-        view.getRoot().removeEventFilter(KeyEvent.KEY_TYPED, this::onKeyTyped);
+        view.getLayout().removeEventFilter(KeyEvent.KEY_PRESSED, this::onKeyPressed);
+        view.getLayout().removeEventFilter(KeyEvent.KEY_TYPED, this::onKeyTyped);
     }
 
 
     private void unlockInput() {
-        view.getRoot().setDisable(false);
+        view.getLayout().setDisable(false);
     }
 
     private void restartGame() {
-        model.newRandomWord();
-        model.resetAttempts();
+        model.novaPalavra();
+        model.resetarTentativas();
 
         for (int i = 0; i < buffer.length; i++)
             buffer[i] = new StringBuilder();
 
-        for (int r = 0; r < view.getRows(); r++)
-            view.clearRow(r);
+        for (int r = 0; r < view.getLinhas(); r++)
+            view.limparLinhas(r);
 
         currentRow = 0;
         currentCol = 0;
 
         unlockInput();
 
-        view.setMessage("Novo jogo iniciado! Digite a palavra.");
-        view.focusCell(0, 0);
+        view.setMensagem("Novo jogo iniciado! Digite a palavra.");
+        view.celulaFocada(0, 0);
 
-        System.out.println("Nova palavra alvo (DEBUG): " + model.getTargetWord());
+        System.out.println("Nova palavra alvo (DEBUG): " + model.getPalavraAlvo());
     }
 
     private void sendAttempt() {
-        if (buffer[currentRow].length() == model.getWordLength()
+        if (buffer[currentRow].length() == model.getTamanhoPalavra()
                 && !buffer[currentRow].toString().contains(" ")) {
 
             String guess = buffer[currentRow].toString();
-            LetterState[] result = model.checkGuess(guess);
+            EstadoDaLetra[] result = model.verificar(guess);
 
             for (int c = 0; c < result.length; c++)
-                view.setCellState(currentRow, c, result[c]);
+                view.setEstadoDasCelulas(currentRow, c, result[c]);
 
             if (model.isCorrect(guess)) {
-                view.setMessage("Parabéns! Você acertou em " + model.getAttempt() + " tentativa(s)!");
+                view.setMensagem("Parabéns! Você acertou em " + model.getTentativa() + " tentativa(s)!");
                 lockInput();
                 return;
-            } else if (!model.hasAttemptsLeft()) {
-                view.setMessage("Fim de jogo. A palavra era: (veja console de debug).");
+            } else if (!model.hasTentativasRestantes()) {
+                view.setMensagem("Fim de jogo. A palavra era: (veja console de debug).");
                 lockInput();
                 return;
             } else {
                 currentRow++;
                 currentCol = 0;
-                view.focusCell(currentRow, currentCol);
-                view.setMessage("Tentativa " + (model.getAttempt() + 1) + " de " + model.getMaxAttempts() + ".");
+                view.celulaFocada(currentRow, currentCol);
+                view.setMensagem("Tentativa " + (model.getTentativa() + 1) + " de " + model.getMaxTentativas() + ".");
             }
         } else {
-            view.setMessage("A palavra precisa ter " + model.getWordLength() + " letras.");
+            view.setMensagem("A palavra precisa ter " + model.getTamanhoPalavra() + " letras.");
         }
     }
 }

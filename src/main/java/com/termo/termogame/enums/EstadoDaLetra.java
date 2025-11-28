@@ -1,5 +1,5 @@
 package com.termo.termogame.enums;
 
-public enum LetterState {
+public enum EstadoDaLetra {
     GRAY, YELLOW, GREEN
 }

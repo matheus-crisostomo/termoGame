@@ -44,7 +44,7 @@
 }
 
 
-.message {
+.mensagem {
     -fx-text-fill: white;
     -fx-padding: 12px;
 }
@@ -52,9 +52,9 @@
 .send-button {
     -fx-background-color: #538d4e;
     -fx-text-fill: white;
-    -fx-font-size: 20px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-padding: 10px 20px;
+    -fx-padding: 8px 18px;
     -fx-background-radius: 10px;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0.3, 0, 2);
