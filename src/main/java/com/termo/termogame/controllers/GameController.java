@@ -21,7 +21,6 @@ public class GameController {
         buffer = new StringBuilder[view.getLinhas()];
         for (int i = 0; i < buffer.length; i++) buffer[i] = new StringBuilder();
 
-
         view.getLayout().addEventFilter(KeyEvent.KEY_PRESSED, this::onKeyPressed);
         view.getLayout().addEventFilter(KeyEvent.KEY_TYPED, this::onKeyTyped);
 
@@ -40,30 +39,48 @@ public class GameController {
         if (ch.charAt(0) < 32) return;
 
         if (ch.matches("[a-zA-ZÀ-ÿ]")) {
-            if (buffer[currentRow].length() >= model.getTamanhoPalavra()) {
+            int max = model.getTamanhoPalavra();
+
+            if (buffer[currentRow].length() >= max && currentCol >= buffer[currentRow].length()) {
                 ev.consume();
                 return;
             }
 
             char up = Character.toUpperCase(ch.charAt(0));
-            buffer[currentRow].append(up);
-            view.setCellLetter(currentRow, currentCol, String.valueOf(up));
 
-            currentCol++;
-            view.celulaFocada(currentRow, Math.min(currentCol, model.getTamanhoPalavra() - 1));
+            if (currentCol < buffer[currentRow].length()) {
+                buffer[currentRow].setCharAt(currentCol, up);
+            } else {
+                buffer[currentRow].insert(currentCol, up);
+            }
+
+            if (buffer[currentRow].length() > max) {
+                buffer[currentRow].setLength(max);
+            }
+
+            atualizarViewDaLinha(currentRow);
+
+            if (currentCol < max - 1) currentCol++;
+            view.celulaFocada(currentRow, currentCol);
+
+            ev.consume();
         }
     }
-
 
     private void onKeyPressed(KeyEvent ev) {
         KeyCode code = ev.getCode();
 
         if (code == KeyCode.BACK_SPACE) {
-            if (buffer[currentRow].length() > 0) {
-                int last = buffer[currentRow].length() - 1;
-                buffer[currentRow].deleteCharAt(last);
-                view.setCellLetter(currentRow, last, "");
-                currentCol = last;
+            if (currentCol > 0 || buffer[currentRow].length() > 0) {
+                if (currentCol > 0 && currentCol <= buffer[currentRow].length()) {
+                    buffer[currentRow].deleteCharAt(currentCol - 1);
+                    currentCol--;
+                } else if (buffer[currentRow].length() > 0) {
+                    buffer[currentRow].deleteCharAt(buffer[currentRow].length() - 1);
+                    currentCol = Math.max(0, buffer[currentRow].length());
+                }
+
+                atualizarViewDaLinha(currentRow);
                 view.celulaFocada(currentRow, currentCol);
             }
             ev.consume();
@@ -81,7 +98,9 @@ public class GameController {
         }
 
         if (code == KeyCode.RIGHT) {
-            if (currentCol < model.getTamanhoPalavra() - 1) currentCol++;
+            int max = model.getTamanhoPalavra();
+            if (currentCol < max - 1) currentCol++;
+            if (currentCol > buffer[currentRow].length()) currentCol = buffer[currentRow].length();
             view.celulaFocada(currentRow, currentCol);
             ev.consume();
             return;
@@ -92,7 +111,6 @@ public class GameController {
         view.getLayout().removeEventFilter(KeyEvent.KEY_PRESSED, this::onKeyPressed);
         view.getLayout().removeEventFilter(KeyEvent.KEY_TYPED, this::onKeyTyped);
     }
-
 
     private void unlockInput() {
         view.getLayout().setDisable(false);
@@ -115,13 +133,14 @@ public class GameController {
 
         view.setMensagem("Novo jogo iniciado! Digite a palavra.");
         view.celulaFocada(0, 0);
+        view.getSendButton().setDisable(false);
 
         System.out.println("Nova palavra alvo (DEBUG): " + model.getPalavraAlvo());
     }
 
     private void sendAttempt() {
-        if (buffer[currentRow].length() == model.getTamanhoPalavra()
-                && !buffer[currentRow].toString().contains(" ")) {
+        int tamanho = model.getTamanhoPalavra();
+        if (buffer[currentRow].length() == tamanho && !buffer[currentRow].toString().contains(" ")) {
 
             String guess = buffer[currentRow].toString();
             EstadoDaLetra[] result = model.verificar(guess);
@@ -131,6 +150,7 @@ public class GameController {
 
             if (model.isCorrect(guess)) {
                 view.setMensagem("Parabéns! Você acertou em " + model.getTentativa() + " tentativa(s)!");
+                view.getSendButton().setDisable(true);
                 lockInput();
                 return;
             } else if (!model.hasTentativasRestantes()) {
@@ -140,11 +160,31 @@ public class GameController {
             } else {
                 currentRow++;
                 currentCol = 0;
+                if (currentRow >= view.getLinhas()) {
+                    currentRow = view.getLinhas() - 1;
+                    lockInput();
+                    view.setMensagem("Número de linhas excedido.");
+                    return;
+                }
                 view.celulaFocada(currentRow, currentCol);
                 view.setMensagem("Tentativa " + (model.getTentativa() + 1) + " de " + model.getMaxTentativas() + ".");
             }
         } else {
-            view.setMensagem("A palavra precisa ter " + model.getTamanhoPalavra() + " letras.");
+            view.setMensagem("A palavra precisa ter " + tamanho + " letras.");
+        }
+    }
+
+    private void atualizarViewDaLinha(int r) {
+        int cols = model.getTamanhoPalavra();
+        StringBuilder sb = buffer[r];
+
+        for (int c = 0; c < cols; c++) {
+            if (c < sb.length()) {
+                view.setCellLetter(r, c, String.valueOf(sb.charAt(c)));
+            } else {
+                view.setCellLetter(r, c, "");
+            }
+            view.getLayout();
         }
     }
 }
