@@ -153,7 +153,7 @@ public class GameController {
             EstadoDaLetra[] result = model.verificar(guess);
 
             for (int c = 0; c < result.length; c++)
-                view.setEstadoDasCelulas(currentRow, c, result[c]);
+                view.setEstadoDaCelula(currentRow, c, result[c]);
 
             if (model.isCorrect(guess)) {
                 view.setMensagem("Parabéns! Você acertou em " + model.getTentativa() + " tentativa(s)!");
@@ -163,6 +163,7 @@ public class GameController {
                 return;
             } else if (!model.hasTentativasRestantes()) {
                 view.setMensagem("Fim de jogo. A palavra era: "+model.getPalavraAlvo());
+                view.getSendButton().setDisable(true);
                 jogoEncerrado = true;
                 lockInput();
                 return;

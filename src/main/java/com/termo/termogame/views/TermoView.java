@@ -103,7 +103,7 @@ public class TermoView {
         }
     }
 
-    public void setEstadoDasCelulas(int row, int col, EstadoDaLetra state) {
+    public void setEstadoDaCelula(int row, int col, EstadoDaLetra state) {
         StackPane cell = celulas[row][col];
         cell.getStyleClass().removeAll("gray", "yellow", "green");
         switch (state) {
