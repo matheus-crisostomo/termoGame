@@ -12,14 +12,18 @@ public class GameController {
 
     private int currentRow = 0;
     private int currentCol = 0;
-    private final StringBuilder[] buffer;
+    private final char[][] buffer;
 
     public GameController(GameModel model, TermoView view) {
         this.model = model;
         this.view = view;
 
-        buffer = new StringBuilder[view.getLinhas()];
-        for (int i = 0; i < buffer.length; i++) buffer[i] = new StringBuilder();
+        buffer = new char[view.getLinhas()][model.getTamanhoPalavra()];
+        for (int r = 0; r < buffer.length; r++) {
+            for (int c = 0; c < buffer[r].length; c++) {
+                buffer[r][c] = '\0';
+            }
+        }
 
         view.getLayout().addEventFilter(KeyEvent.KEY_PRESSED, this::onKeyPressed);
         view.getLayout().addEventFilter(KeyEvent.KEY_TYPED, this::onKeyTyped);
@@ -41,22 +45,14 @@ public class GameController {
         if (ch.matches("[a-zA-ZÀ-ÿ]")) {
             int max = model.getTamanhoPalavra();
 
-            if (buffer[currentRow].length() >= max && currentCol >= buffer[currentRow].length()) {
+
+            if (currentCol >= max) {
                 ev.consume();
                 return;
             }
 
             char up = Character.toUpperCase(ch.charAt(0));
-
-            if (currentCol < buffer[currentRow].length()) {
-                buffer[currentRow].setCharAt(currentCol, up);
-            } else {
-                buffer[currentRow].insert(currentCol, up);
-            }
-
-            if (buffer[currentRow].length() > max) {
-                buffer[currentRow].setLength(max);
-            }
+            buffer[currentRow][currentCol] = up;
 
             atualizarViewDaLinha(currentRow);
 
@@ -71,15 +67,8 @@ public class GameController {
         KeyCode code = ev.getCode();
 
         if (code == KeyCode.BACK_SPACE) {
-            if (currentCol > 0 || buffer[currentRow].length() > 0) {
-                if (currentCol > 0 && currentCol <= buffer[currentRow].length()) {
-                    buffer[currentRow].deleteCharAt(currentCol - 1);
-                    currentCol--;
-                } else if (buffer[currentRow].length() > 0) {
-                    buffer[currentRow].deleteCharAt(buffer[currentRow].length() - 1);
-                    currentCol = Math.max(0, buffer[currentRow].length());
-                }
-
+            if (currentCol > 0) {
+                buffer[currentRow][currentCol] = '\0';
                 atualizarViewDaLinha(currentRow);
                 view.celulaFocada(currentRow, currentCol);
             }
@@ -100,7 +89,6 @@ public class GameController {
         if (code == KeyCode.RIGHT) {
             int max = model.getTamanhoPalavra();
             if (currentCol < max - 1) currentCol++;
-            if (currentCol > buffer[currentRow].length()) currentCol = buffer[currentRow].length();
             view.celulaFocada(currentRow, currentCol);
             ev.consume();
             return;
@@ -120,8 +108,11 @@ public class GameController {
         model.novaPalavra();
         model.resetarTentativas();
 
-        for (int i = 0; i < buffer.length; i++)
-            buffer[i] = new StringBuilder();
+        for (int r = 0; r < buffer.length; r++) {
+            for (int c = 0; c < buffer[r].length; c++) {
+                buffer[r][c] = '\0';
+            }
+        }
 
         for (int r = 0; r < view.getLinhas(); r++)
             view.limparLinhas(r);
@@ -140,9 +131,18 @@ public class GameController {
 
     private void sendAttempt() {
         int tamanho = model.getTamanhoPalavra();
-        if (buffer[currentRow].length() == tamanho && !buffer[currentRow].toString().contains(" ")) {
+        int count = 0;
+        for (char ch : buffer[currentRow]) {
+            if (ch != '\0') count++;
+        }
 
-            String guess = buffer[currentRow].toString();
+        if (count == tamanho) {
+            StringBuilder sb = new StringBuilder();
+            for (char ch : buffer[currentRow]) {
+                if (ch != '\0') sb.append(ch);
+            }
+            String guess = sb.toString();
+
             EstadoDaLetra[] result = model.verificar(guess);
 
             for (int c = 0; c < result.length; c++)
@@ -176,15 +176,10 @@ public class GameController {
 
     private void atualizarViewDaLinha(int r) {
         int cols = model.getTamanhoPalavra();
-        StringBuilder sb = buffer[r];
 
         for (int c = 0; c < cols; c++) {
-            if (c < sb.length()) {
-                view.setCellLetter(r, c, String.valueOf(sb.charAt(c)));
-            } else {
-                view.setCellLetter(r, c, "");
-            }
-            view.getLayout();
+            char ch = buffer[r][c];
+            view.setCellLetter(r, c, ch == '\0' ? "" : String.valueOf(ch));
         }
     }
 }
