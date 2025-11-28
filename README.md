@@ -49,23 +49,6 @@ Responsável pela interação:
 
 ---
 
-## 📂 Estrutura do Projeto
-
-src/
-└─ com.termo.termogame/
-├── controllers/
-│ └── GameController.java
-├── views/
-│ └── TermoView.java
-├── models/
-│ └── GameModel.java
-├── enums/
-│ └── EstadoDaLetra.java
-└── resources/
-└── dicionario.txt
-
-
----
 
 ## 🎮 Como Jogar
 
@@ -79,7 +62,7 @@ src/
 
 ---
 
-🖥️ Requisitos
+## 🖥️ Requisitos
 
 Java 17+
 
@@ -87,15 +70,18 @@ JavaFX 17+
 
 IDE recomendada: IntelliJ ou VSCode com plugin JavaFX
 
-🚀 Execução
+## 🚀 Execução
 
 1. Clone o repositório:
+
 git clone https://github.com/matheus-crisostomo/termoGame.git
 
 2. Execute a classe principal:
+
 mvn clean javafx:run
+
 ou configure via IDE.
 
-👨‍💻 Autor
+## 👨‍💻 Autor
 
-Projeto desenvolvido para fins didáticos por Matheus Crisóstomo.
+Projeto desenvolvido para fins didáticos por **Matheus Crisóstomo**.
