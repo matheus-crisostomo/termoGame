@@ -54,7 +54,7 @@ Responsável pela interação:
 
 1. A aplicação inicia com um grid 5×6 vazio.
 2. Digite letras do teclado — elas preenchem automaticamente a linha atual.
-3. Ao completar 5 letras, clique **ENVIAR**.
+3. Ao completar 5 letras, clique **ENVIAR** ou **ENTER**.
 4. O jogo fornece o resultado da tentativa por cor.
 5. Se acertar → mensagem de vitória 🎉  
    Se errar 6 vezes → fim do jogo ❌
